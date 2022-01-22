@@ -1,46 +1,35 @@
-import { readable, writable, derived } from 'svelte/store';
-import { csv, autoType, sum, groups } from 'd3';
+import { readable, derived } from 'svelte/store';
+import { csv, autoType, groups } from 'd3';
 
-import { getDayOfYear, getYearDays } from '../utils/datetime';
+import { uniqueDate } from '../utils/array';
 
 const dataPath = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv';
-const exclude = [
-  'International'
-];
-const continents = [
+const excludeLocations = [
+  'International',
   'North America',
   'South America',
   'Europe',
   'Africa',
   'Oceania',
   'Asia',
-  'World'
-];
-const wealthStatus = [
+  'World',
   'High income',
   'Upper middle income',
   'Lower middle income',
   'Low income'
 ];
-
-const getSevenDayIncidence = (data, i, population) => {
-  return 100000 * sum(data.slice(Math.max(0, i - 7), i + 1)) / population;
-};
-
-export const selectedLocation = writable('Germany');
-
-export const rawData = readable([], async set => {
+export const data = readable([], async set => {
   const data = await csv(dataPath, autoType);
-  set(data);
+  const filteredData = data.filter(d => !excludeLocations.includes(d.location));
+  set(filteredData);
 });
 
-export const locations = derived(rawData, $rawData => {
-  return [...new Set($rawData.map(d => d.location))].sort();
+export const locations = derived(data, $data => {
+  return [...new Set($data.map(d => d.location))].sort();
 });
 
-export const data = derived(rawData, $rawData => {
-  const formattedData = $rawData.map((d, _, arr) => {
-    const dayOfYear = getDayOfYear(d.date);
+export const locationData = derived(data, $data => {
+  const reducedData = $data.map(d => {
     const incidence = +d.new_cases_smoothed_per_million;
     const deaths = +d.new_deaths_smoothed_per_million * 10;
     const icu = +d.icu_patients_per_million;
@@ -48,36 +37,27 @@ export const data = derived(rawData, $rawData => {
     return {
       location,
       date,
-      dayOfYear,
-      cumDay: getYearDays(dayOfYear, date.getFullYear(), arr[0].date.getFullYear()),
       incidence,
       deaths,
       icu
     };
-  }).filter(d => !exclude.includes(d.location));
+  });
 
-  return formattedData;
-});
-
-export const objData = derived(data, $data => {
-  const objData = groups($data, d => d.location).map(([ key, value ]) => {
+  const locationData = groups(reducedData, d => d.location).map(([ location, data ]) => {
     return {
-      location: key,
-      data: value
+      location,
+      data
     };
   });
 
-  return objData;
+  return locationData;
 });
 
-export const continentData = derived(objData, $objData => {
-  return $objData.filter(d => continents.includes(d.location));
-});
-
-export const countryData = derived(objData, $objData => {
-  return $objData.filter(d => !continents.includes(d.location));
-});
-
-export const wealthStatusData = derived(objData, $objData => {
-  return $objData.filter(d => wealthStatus.includes(d.location));
+export const dates = derived(data, $data => {
+  return uniqueDate($data.map(d => d.date)).map((date, i) => {
+    return {
+      id: i,
+      date
+    };
+  });
 });

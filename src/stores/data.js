@@ -37,6 +37,7 @@ export const locationData = derived(data, $data => {
     return {
       location,
       date,
+      time: date.getTime(),
       incidence,
       deaths,
       icu
@@ -57,7 +58,8 @@ export const dates = derived(data, $data => {
   return uniqueDate($data.map(d => d.date)).map((date, i) => {
     return {
       id: i,
-      date
+      date,
+      time: date.getTime()
     };
   });
 });

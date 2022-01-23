@@ -1,15 +1,15 @@
 import { writable, derived } from 'svelte/store';
 
-import { dates } from './data';
-
 export const frameCounter = (() => {
   const { set, update, subscribe } = writable(0);
 
   let afId;
   let maxI = null;
+  let time = 0;
 
-  const init = (arr) => {
+  const init = (arr, movingTime) => {
     maxI = arr.length - 1;
+    time = movingTime;
   }
 
   const increment = () => update(value => {
@@ -21,12 +21,16 @@ export const frameCounter = (() => {
     }
   });
 
-  const run = (arr) => {
-    if (arr && arr.length) init(arr);
+  const run = (arr, movingTime) => {
+    if (arr && arr.length) init(arr, movingTime);
     if (!maxI || maxI < 0) return;
-    const step = () => {
-      increment();
+    let previousTimeStamp = 0;
+    const step = (timeStamp) => {
       afId = requestAnimationFrame(step);
+      if (timeStamp - previousTimeStamp >= time) {
+        increment();
+        previousTimeStamp = timeStamp;
+      }
     };
     afId = requestAnimationFrame(step);
   };

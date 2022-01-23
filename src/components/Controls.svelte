@@ -3,10 +3,16 @@
 
   export let dates;
   export let frame;
+  export let frameDate = null;
+  export let frameTime = null;
+  export let movingTime = 500;
 
-  $: frameCounter.run(dates);
+  $: frameCounter.run(dates, movingTime);
 
   $: frame = $frameCounter;
+  $: ({ date: frameDate, time: frameTime } = dates[frame] || {});
+
+  // $: console.log(frameDate)
 </script>
 
 <div class="controls">

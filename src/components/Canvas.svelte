@@ -3,7 +3,6 @@
 
   export let width = 0;
   export let height = 0;
-  export let maskPath = null;
   export let pixelRatio = window.devicePixelRatio || 1;
 
   const drawFunctions = [];
@@ -19,7 +18,6 @@
     canvas.style.height = `${height}px`;
 
     ctx.scale(pixelRatio, pixelRatio);
-    ctx.translate(width / 2, height / 2);
 
     return ctx;
   };
@@ -46,22 +44,13 @@
   function update() {
     if (!ctx) return;
 
-    ctx.clearRect(-width / 2, -height / 2, width, height);
-
-    if (maskPath) {
-      ctx.save();
-      ctx.clip(new Path2D(maskPath));
-    }
+    ctx.clearRect(0, 0, width, height);
 
     drawFunctions.forEach((fn) => {
       ctx.save();
       fn(ctx);
       ctx.restore();
     });
-
-    if (maskPath) {
-      ctx.restore();
-    }
 
     pendingInvalidation = false;
   }

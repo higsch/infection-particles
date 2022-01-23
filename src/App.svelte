@@ -5,7 +5,8 @@
   import Chart from './components/Chart.svelte';
   import Credit from './components/Credit.svelte';
 
-  let frame;
+  let frameTime;
+  let movingTime;
 </script>
 
 <div
@@ -13,11 +14,13 @@
 >
   <Controls
     dates={$dates}
-    bind:frame={frame}
+    bind:frameTime={frameTime}
+    bind:movingTime={movingTime}
   />
   <Chart
     locationData={$locationData}
-    frame={frame}
+    frameTime={frameTime}
+    movingTime={movingTime}
   />
   <Credit />
 </div>

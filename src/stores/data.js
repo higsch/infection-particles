@@ -32,7 +32,9 @@ export const locationData = derived(data, $data => {
   const reducedData = $data.map(d => {
     const incidence = +d.new_cases_smoothed_per_million;
     const deaths = +d.new_deaths_smoothed_per_million * 10;
+    const hospitalization = +d.hosp_patients_per_million;
     const icu = +d.icu_patients_per_million;
+    const vacc = +d.people_fully_vaccinated_per_hundred;
     const { date, location } = d;
     return {
       location,
@@ -40,7 +42,9 @@ export const locationData = derived(data, $data => {
       time: date.getTime(),
       incidence,
       deaths,
-      icu
+      hospitalization,
+      icu,
+      vacc
     };
   });
 
@@ -61,5 +65,5 @@ export const dates = derived(data, $data => {
       date,
       time: date.getTime()
     };
-  });
+  }).sort((a, b) => a.time < b.time ? -1 : 1);
 });

@@ -9,6 +9,7 @@
   export let movingTime;
   export let xAccessor = 'deaths';
   export let yAccessor = 'incidence';
+  export let colorAccessor = 'vacc';
 
   const padding = 10;
 
@@ -17,7 +18,7 @@
 
   const getMax = (objArr, accessor) => max(objArr.map(d => d.data).flat(), d => d[accessor]);
 
-  $: maxX = Math.min(700, getMax(locationData, xAccessor));
+  $: maxX = getMax(locationData, xAccessor);
   $: maxY = getMax(locationData, yAccessor);
 
   $: xScale = scaleLog()
@@ -28,12 +29,17 @@
     .domain([0.01, maxY])
     .range([height - padding, padding]);
 
+  $: colorScale = scaleLinear()
+    .domain([0, 100])
+    .range(['red', 'blue'])
+
   $: renderedLocationData = locationData.map(({ location, data }) => {
     const renderedData = data.map(d => {
       return {
         ...d,
         x: xScale(d[xAccessor]),
-        y: yScale(d[yAccessor])
+        y: yScale(d[yAccessor]),
+        color: colorScale(d[colorAccessor])
       };
     });
     return {
@@ -61,10 +67,11 @@
       width={width}
       height={height}
     >
-      {#each frameData as { location, data: { x, y } } (location)}
+      {#each frameData as { location, data: { x, y, color } } (location)}
         <Particle
           x={x}
           y={y}
+          color={color}
           movingTime={movingTime}
         />
       {/each}

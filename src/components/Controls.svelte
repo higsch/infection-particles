@@ -5,14 +5,14 @@
   export let frame;
   export let frameDate = null;
   export let frameTime = null;
-  export let movingTime = 500;
+  export let movingTime = 20;
 
   $: frameCounter.run(dates, movingTime);
 
   $: frame = $frameCounter;
   $: ({ date: frameDate, time: frameTime } = dates[frame] || {});
 
-  // $: console.log(frameDate)
+  $: console.log(frameDate)
 </script>
 
 <div class="controls">

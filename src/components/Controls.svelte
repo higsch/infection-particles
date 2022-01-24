@@ -5,7 +5,7 @@
   export let frame;
   export let frameDate = null;
   export let frameTime = null;
-  export let movingTime = 20;
+  export let movingTime = 1000;
 
   $: frameCounter.run(dates, movingTime);
 

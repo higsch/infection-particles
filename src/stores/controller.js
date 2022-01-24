@@ -1,4 +1,4 @@
-import { writable, derived } from 'svelte/store';
+import { writable } from 'svelte/store';
 
 export const frameCounter = (() => {
   const { set, update, subscribe } = writable(0);
